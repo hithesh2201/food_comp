@@ -17,10 +17,13 @@ def get_db_connection():
     except Error as e:
         print(f"Error while connecting to MySQL: {e}")
         return None
+@app.route('/', methods=['GET'])
+def welcome_page():
+    return "Welcome to Food comparision"
 
 @app.route('/get_nutrition', methods=['GET'])
 def get_nutrition():
-    food_name = "Basil"
+    food_name = "Basil" 
     if not food_name:
         return jsonify({'error': 'No food specified'}), 400
     
