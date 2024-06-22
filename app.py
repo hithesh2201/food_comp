@@ -1,53 +1,45 @@
-from flask import Flask, request, jsonify
-import mysql.connector
-from mysql.connector import Error
+from flask import Flask, jsonify, request
+import csv
 
 app = Flask(__name__)
 
-def get_db_connection():
-    try:
-        connection = mysql.connector.connect(
-            host='localhost',
-            database='test',
-            user='root',
-            password='FOOD_COMP@123'
-        )
-        if connection.is_connected():
-            return connection
-    except Error as e:
-        print(f"Error while connecting to MySQL: {e}")
-        return None
+def load_food_data():
+    food_data = {}
+    with open('test.csv', mode='r', encoding='utf-8-sig') as file:
+        csv_reader = csv.DictReader(file)
+        for row in csv_reader:
+            food_name = row['Food (100g)']
+            food_data[food_name] = {
+                "Calories (kCal)": float(row['Calories (kCal)']),
+                "Carbohydrates (g)": float(row['Carbohydrates (g)']),
+                "Fiber (g)": float(row['Fiber (g)']),
+                "Net Carbs (g)": float(row['Net Carbs (g)']),
+                "Fats (g)": float(row['Fats (g)']),
+                "Protein (g)": float(row['Protein (g)']),
+                "food_name": food_name
+            }
+    return food_data
+
+food_data = load_food_data()
+
 @app.route('/', methods=['GET'])
 def welcome_page():
-    return "Welcome to Food comparision"
+    return "Welcome to Food Comparison"
 
 @app.route('/get_nutrition', methods=['GET'])
 def get_nutrition():
-    food_name = "Basil" 
-    if not food_name:
-        return jsonify({'error': 'No food specified'}), 400
-    
-    print(f"Received food name: {food_name}")
-    
-    connection = get_db_connection()
-    if connection is None:
-        return jsonify({'error': 'Database connection failed'}), 500
+    data = ["Basil","Arugula","Broccoli"]
+    if not data:
+        return jsonify({'error': 'Invalid request, please provide a list of food names'}), 400
 
-    cursor = connection.cursor(dictionary=True)
-    query = "SELECT * FROM nutrition_info_new WHERE food = %s"
-    cursor.execute(query, (food_name,))
-    result = cursor.fetchone()
-    
-    print(f"SQL Query: {query}")
-    print(f"Query Result: {result}")
-    
-    cursor.close()
-    connection.close()
-    
-    if result:
-        return jsonify(result)
-    else:
-        return jsonify({'error': 'Food not found'}), 404
+    result = []
+    for food_name in data:
+        if food_name in food_data:
+            result.append(food_data[food_name])
+        else:
+            result.append({'error': f'Nutritional information not found for {food_name}'})
+
+    return jsonify(result)
 
 if __name__ == '__main__':
     app.run(debug=True)
