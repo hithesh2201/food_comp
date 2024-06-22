@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 import csv
 
 app = Flask(__name__)
@@ -24,7 +24,7 @@ food_data = load_food_data()
 
 @app.route('/', methods=['GET'])
 def welcome_page():
-    return "Welcome to Food Comparison"
+    return render_template('index.html')
 
 @app.route('/get_nutrition', methods=['GET'])
 def get_nutrition():

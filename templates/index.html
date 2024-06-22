@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Food Comparison</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</head>
+<body>
+    <h1>Welcome to Food Comparison</h1>
+
+    <h2>Compare Nutritional Information</h2>
+
+    <p>Enter 1st Food: <input type="text" id="food1"></p>
+    <p>Enter 2nd Food: <input type="text" id="food2"></p>
+    <p>Enter 3rd Food: <input type="text" id="food3"></p>
+
+    <button onclick="compareFoods()">Compare</button>
+
+    <div id="result"></div>
+
+    <script>
+        function compareFoods() {
+            var foods = [
+                $('#food1').val(),
+                $('#food2').val(),
+                $('#food3').val()
+            ];
+
+            $.ajax({
+                type: 'GET',
+                url: '/get_nutrition',
+                data: { data: JSON.stringify(foods) },
+                success: function(response) {
+                    var resultHtml = '';
+                    for (var i = 0; i < response.length; i++) {
+                        resultHtml += '<p>';
+                        if ('error' in response[i]) {
+                            resultHtml += response[i]['error'];
+                        } else {
+                            resultHtml += 'Food: ' + response[i]['food_name'] + '<br>';
+                            resultHtml += 'Calories: ' + response[i]['Calories (kCal)'] + ' kCal<br>';
+                            resultHtml += 'Carbohydrates: ' + response[i]['Carbohydrates (g)'] + ' g<br>';
+                            // Add other nutritional values here
+                        }
+                        resultHtml += '</p>';
+                    }
+                    $('#result').html(resultHtml);
+                },
+                error: function() {
+                    $('#result').html('Error fetching data');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
