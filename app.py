@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 def load_food_data():
     food_data = {}
-    with open('C:/Users/U6071547/food_comp/food_comp/test.csv', mode='r', encoding='utf-8-sig') as file:
+    with open('test.csv', mode='r', encoding='utf-8-sig') as file:
         csv_reader = csv.DictReader(file)
         for row in csv_reader:
             food_name = row['Food (100g)']
