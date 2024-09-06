@@ -3,7 +3,13 @@ import csv
 
 app = Flask(__name__)
 
-def load_food_data():
+def load_food_data() -> dict:
+    """
+    Load food data from a CSV file.
+
+    Returns:
+        dict: A dictionary of food data.
+    """
     food_data = {}
     with open('test.csv', mode='r', encoding='utf-8-sig') as file:
         csv_reader = csv.DictReader(file)
@@ -28,9 +34,16 @@ def welcome_page():
 
 @app.route('/get_nutrition', methods=['GET'])
 def get_nutrition():
-    data = ["Basil","Arugula","Broccoli"]
+    """
+    Get nutritional information for a list of food items.
+
+    Returns:
+        list: A list of dictionaries containing nutritional information for each food item.
+    """
+    data = request.args.getlist('food')
+
     if not data:
-        return jsonify({'error': 'Invalid request, please provide a list of food names'}), 400
+        return jsonify({'error': 'Invalid request, please provide a list of food names'}), 422
 
     result = []
     for food_name in data:
